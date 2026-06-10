@@ -142,6 +142,40 @@ public:
   }
 };
 
+template <vals_to_filter T, typename L>
+requires std::is_same<L, float>::value || std::is_same<L, double>::value
+class ExponentialFilter final {
+public:
+  ExponentialFilter(L alpha_coefficient = 0) {
+    set_alpha(alpha_coefficient);
+  }
+  ExponentialFilter(const ExponentialFilter &other) { // copy
+    alpha = other.alpha;
+    alpha_inv = other.alpha_inv;
+  }
+  ExponentialFilter(const ExponentialFilter &&other) { // move
+    alpha = other.alpha;
+    alpha_inv = other.alpha_inv;
+  }
+  bool set_alpha(L new_alpha) {
+    if ((new_alpha < 0) || (new_alpha > 1)) {
+      return false;
+    }
+    alpha = new_alpha;
+    alpha_inv = 1 - alpha;
+    return true;
+  }
+  T step(T new_value) {
+    y_prev = new_value * alpha + (1 - alpha) * y_prev;
+    return y_prev;
+  }
+
+private:
+  L alpha{0.0};
+  L alpha_inv{1.0};
+  T y_prev{0};
+};
+
 template<vals_to_filter ValueType, vals_to_filter CoefficientsType>
 class SimpleKalmanFilter final {
 public:
