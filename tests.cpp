@@ -15,7 +15,7 @@ int main() {
   ef.step(2.71f); */
 
   Exponential2FieldsFilter<float, float> eff(0.1, 0.5, 42);
-  eff.step(1);
+  eff(1);
   eff.step(69);
 
   return 0;

@@ -171,6 +171,9 @@ public:
     y_prev = new_value * alpha + (1 - alpha) * y_prev;
     return y_prev;
   }
+  T operator() (const T new_value) {
+    return step(new_value);
+  }
 
 private:
   L alpha{0.0};
@@ -208,6 +211,9 @@ public:
     return last_value;
   }
   void reset(void) { last_value = 0; }
+  T operator() (const T new_value) {
+    return step(new_value);
+  }
 
 private:
   L sharpness{0.0};
