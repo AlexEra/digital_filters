@@ -104,7 +104,7 @@ public:
     index = 0;
     for (auto &v: values) { v = 0; }
   }
-  virtual T step(const T new_value) {
+  T step(const T new_value) {
     values[index++] = new_value;
     if (index >= N) {
       index = 0;
