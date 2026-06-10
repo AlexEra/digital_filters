@@ -95,7 +95,7 @@ private:
 };
 
 template<vals_to_filter T, size_t N>
-class MedianFilter final {
+class MedianFilter {
 public:
   T operator() (const T new_value) {
     return step(new_value);
@@ -104,22 +104,42 @@ public:
     index = 0;
     for (auto &v: values) { v = 0; }
   }
-  T step(const T new_value) {
+  virtual T step(const T new_value) {
     values[index++] = new_value;
     if (index >= N) {
       index = 0;
+      std::sort(
+        values.begin(), values.end(),
+        [] (T first, T second) {
+          return first > second;
+        }
+      );
+      out = values[N >> 1];
+    }
+    return out;
+  }
+protected:
+  T out{0};
+  uint8_t index{0};
+  std::array<T, N> values;
+};
+
+template<vals_to_filter T, size_t N>
+class RunningMedianFilter : public MedianFilter<T, N> {
+public:
+  T step(const T new_value) {
+    this->values[this->index++] = new_value;
+    if (this->index >= N) {
+      this->index = 0;
     }
     std::sort(
-      values.begin(), values.end(),
+      this->values.begin(), this->values.end(),
       [] (T first, T second) {
         return first > second;
       }
     );
-    return values[N >> 1];
+    return this->values[N >> 1];
   }
-private:
-  uint8_t index{0};
-  std::array<T, N> values;
 };
 
 template<vals_to_filter ValueType, vals_to_filter CoefficientsType>
