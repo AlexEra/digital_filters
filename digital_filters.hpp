@@ -9,8 +9,6 @@
 
 namespace DigitalFilters {
 
-// TODO: add exponential filters
-
 template <typename T>
 concept vals_to_filter = requires (T value) {
   value + value;
