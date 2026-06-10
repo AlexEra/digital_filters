@@ -21,6 +21,9 @@ concept vals_to_filter = requires (T value) {
   value / value;
 };
 
+template <typename L>
+concept expo_coef_type = std::is_same<L, float>::value || std::is_same<L, double>::value;
+
 template<vals_to_filter T, size_t N>
 class RunningAverageFilter final {
 public:
@@ -142,8 +145,7 @@ public:
   }
 };
 
-template <vals_to_filter T, typename L>
-requires std::is_same<L, float>::value || std::is_same<L, double>::value
+template <vals_to_filter T, expo_coef_type L>
 class ExponentialFilter final {
 public:
   ExponentialFilter(L alpha_coefficient = 0) {
@@ -174,6 +176,44 @@ private:
   L alpha{0.0};
   L alpha_inv{1.0};
   T y_prev{0};
+};
+
+template <vals_to_filter T, expo_coef_type L>
+class Exponential2FieldsFilter final {
+public:
+  Exponential2FieldsFilter(L k_0 = 0, L k_1 = 1, L sharpness = 0) {
+    set_alpha(k_0, k_1);
+    set_sharpness(sharpness);
+  }
+  Exponential2FieldsFilter(const Exponential2FieldsFilter &other) { // copy
+    sharpness = other.sharpness;
+    k_0 = other.k_0;
+    k_1 = other.k_1;
+  }
+  Exponential2FieldsFilter(const Exponential2FieldsFilter &&other) { // move
+    sharpness = other.sharpness;
+    k_0 = other.k_0;
+    k_1 = other.k_1;
+  }
+  void set_alpha(L new_k_0, L new_k_1) {
+    k_0 = new_k_0;
+    k_1 = new_k_1;
+  }
+  void set_sharpness(L new_sharpness) {
+    sharpness = fabs(new_sharpness);
+  }
+  T step(T new_value) {
+    T delta = new_value - last_value;
+    last_value += (fabs(delta) <= sharpness) ? k_0 * delta : k_1 * delta;
+    return last_value;
+  }
+  void reset(void) { last_value = 0; }
+
+private:
+  L sharpness{0.0};
+  L k_0{0.0};
+  L k_1{0};
+  T last_value{0};
 };
 
 template<vals_to_filter ValueType, vals_to_filter CoefficientsType>
