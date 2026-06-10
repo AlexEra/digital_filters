@@ -1,5 +1,6 @@
 #include <iostream>
 #include "digital_filters.hpp"
+#include "fir.hpp"
 
 using namespace DigitalFilters;
 
@@ -14,9 +15,11 @@ int main() {
   ef.step(146.0f);
   ef.step(2.71f); */
 
-  Exponential2FieldsFilter<float, float> eff(0.1, 0.5, 42);
+  /* Exponential2FieldsFilter<float, float> eff(0.1, 0.5, 42);
   eff(1);
-  eff.step(69);
+  eff.step(69); */
+
+  FIR::FirWindowedRuntimeConvolve<float, float, 64, 8> fir;
 
   return 0;
 }
