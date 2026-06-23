@@ -19,8 +19,8 @@ int main() {
   eff(1);
   eff.step(69); */
 
-// #define FIR_0
-#define FIR_1
+#define FIR_0
+// #define FIR_1
 
 #ifdef FIR_0
   float data_to_filter[] = {1.793f, 6.3f, 9.432f, 5.32f, 2.923f, 6.41f, 5.01f};
@@ -35,18 +35,6 @@ int main() {
   for (auto &data : data_to_filter) {
     std::cout << fir(data) << '\n';
   }
-
-  // FIXME: result for FIR_1
-  // TODO: check with debugger
-  /*
-  3749.0872000000004
-  5164.2402
-  7916.393
-  6683.23564
-  6715.39904 // XXX: this code computes 4339.46 instead of right value (why?)
-  5904.864079999999
-  7036.80092
-  */
 
   return 0;
 }
