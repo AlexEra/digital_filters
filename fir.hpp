@@ -17,7 +17,7 @@ concept fir_value_t = requires (T value) {
 template <
   fir_value_t T, fir_value_t V,
   size_t ImpulseCharSize, size_t WindowSize
-> // TODO: add `requires` to window and impulse characherestics sizes
+> requires (WindowSize > 0) && (ImpulseCharSize > 0)
 class FirWindowedRuntimeConvolve final {
 public:
   void set_impulse_characteristic(
