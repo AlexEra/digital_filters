@@ -39,7 +39,6 @@ public:
       ) {
         y_out += window[x] * h[y];
       }
-      is_window_filled = false;
     }
     if (++counter >= WindowSize) {
       counter = 0;
