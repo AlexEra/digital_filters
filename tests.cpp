@@ -2,7 +2,8 @@
 #include "digital_filters.hpp"
 #include "fir.hpp"
 
-using namespace DigitalFilters;
+// using namespace DigitalFilters;
+using DigitalFilters::ExponentialFilter;
 
 int main() {
   /* RunningMedianFilter<unsigned char, 3> rmf;
@@ -19,22 +20,24 @@ int main() {
   eff(1);
   eff.step(69); */
 
-#define FIR_0
-// #define FIR_1
+// #define FIR_0
+// // #define FIR_1
 
-#ifdef FIR_0
-  float data_to_filter[] = {1.793f, 6.3f, 9.432f, 5.32f, 2.923f, 6.41f, 5.01f};
-  FIR::FirWindowedRuntimeConvolve<float, float, 4, 2> fir;
-  fir.set_impulse_characteristic({0.1f, 0.05f, 0.4f, 0.8f});
-#elif defined(FIR_1)
-  float data_to_filter[] = {593.21f, 439.8f, 603.03f, 399.722f, 432.37f, 410.1f, 583.016f};
-  FIR::FirWindowedRuntimeConvolve<float, float, 6, 3> fir;
-  fir.set_impulse_characteristic({6.32f, 4.02f, 3.94f, 3.51f, 2.05f, 1.42f});
-#endif
+// #ifdef FIR_0
+//   float data_to_filter[] = {1.793f, 6.3f, 9.432f, 5.32f, 2.923f, 6.41f, 5.01f};
+//   FIR::FirWindowedRuntimeConvolve<float, float, 4, 2> fir;
+//   fir.set_impulse_characteristic({0.1f, 0.05f, 0.4f, 0.8f});
+// #elif defined(FIR_1)
+//   float data_to_filter[] = {593.21f, 439.8f, 603.03f, 399.722f, 432.37f, 410.1f, 583.016f};
+//   FIR::FirWindowedRuntimeConvolve<float, float, 6, 3> fir;
+//   fir.set_impulse_characteristic({6.32f, 4.02f, 3.94f, 3.51f, 2.05f, 1.42f});
+// #endif
 
-  for (auto &data : data_to_filter) {
-    std::cout << fir(data) << '\n';
-  }
+//   for (auto &data : data_to_filter) {
+//     std::cout << fir(data) << '\n';
+//   }
+
+  ExponentialFilter<float, float> e2f(-1.0f);
 
   return 0;
 }

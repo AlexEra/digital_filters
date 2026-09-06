@@ -224,14 +224,20 @@ public:
   Exponential2FieldsFilter(const Exponential2FieldsFilter&& other) :
   k_0{other.k_0}, k_1{other.k_1}, sharpness{other.sharpness} { } // move ctor
   Exponential2FieldsFilter& operator=(const Exponential2FieldsFilter& other) { // copy operator
-    sharpness = other.sharpness;
-    k_0 = other.k_0;
-    k_1 = other.k_1;
+    if (&other != this) {
+      sharpness = other.sharpness;
+      k_0 = other.k_0;
+      k_1 = other.k_1;
+    }
+    return *this;
   }
   Exponential2FieldsFilter& operator=(const Exponential2FieldsFilter&& other) { // move operator
-    sharpness = other.sharpness;
-    k_0 = other.k_0;
-    k_1 = other.k_1;
+    if (&other != this) {
+      sharpness = other.sharpness;
+      k_0 = other.k_0;
+      k_1 = other.k_1;
+    }
+    return *this;
   }
   void set_alpha(L new_k_0, L new_k_1) {
     k_0 = new_k_0;
@@ -260,15 +266,47 @@ private:
 template<vals_to_filter ValueType, vals_to_filter CoefficientsType>
 class SimpleKalmanFilter final {
 public:
-  SimpleKalmanFilter() { };
   SimpleKalmanFilter(
-    CoefficientsType noise,
-    CoefficientsType change_speed
+    CoefficientsType noise = 0,
+    CoefficientsType change_speed = 0
   ) :
     err_measure{noise},
     q{change_speed},
-    err_estimate{err_measure}
-    { };
+    err_estimate{err_measure} { } // ctor
+  SimpleKalmanFilter(const SimpleKalmanFilter& other) :
+  err_measure{other.err_measure}, q{other.q},
+  err_estimate{other.err_estimate},
+  last_estimate{other.last_estimate},
+  gain{other.gain}, current_estimate{other.current_estimate} { } // copy ctor
+  SimpleKalmanFilter(const SimpleKalmanFilter&& other) :
+  err_measure{other.err_measure}, q{other.q},
+  err_estimate{other.err_estimate},
+  last_estimate{other.last_estimate},
+  gain{other.gain}, current_estimate{other.current_estimate} { } // move ctor
+  SimpleKalmanFilter& operator=(const SimpleKalmanFilter& other) { // copy operator
+    if (&other != this) {
+      err_measure = other.err_measure;
+      q = other.q;
+      err_estimate = other.err_estimate;
+      last_estimate = other.last_estimate;
+      gain = other.gain;
+      current_estimate = other.current_estimate;
+    }
+    return *this;
+  }
+  SimpleKalmanFilter& operator=(const SimpleKalmanFilter&& other) { // move operator
+    if (&other != this) {
+      err_measure = other.err_measure;
+      q = other.q;
+      err_estimate = other.err_estimate;
+      last_estimate = other.last_estimate;
+      gain = other.gain;
+      current_estimate = other.current_estimate;
+    }
+    return *this;
+  }
+  ~SimpleKalmanFilter() {} // dtor
+
   ValueType operator() (ValueType new_value) {
     return step(new_value);
   }
@@ -293,11 +331,8 @@ public:
     return (ValueType) current_estimate;
   }
 private:
-  CoefficientsType err_measure{0};
-  CoefficientsType q{0};
-  CoefficientsType err_estimate{0};
-  CoefficientsType last_estimate{0};
-  CoefficientsType gain{0}, current_estimate{0};
+  CoefficientsType err_measure, q, err_estimate,
+    last_estimate{0}, gain{0}, current_estimate{0};
 };
 
 } // namespace DigitalFilters
