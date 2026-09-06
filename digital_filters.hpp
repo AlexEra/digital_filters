@@ -51,8 +51,32 @@ private:
 template<vals_to_filter T_in, vals_to_filter T_out, size_t N>
 class RunningSlidingAvg {
 public:
-  // RunningSlidingAvg() { };
-  RunningSlidingAvg(float init_value = 0): y_out{init_value} { };
+  RunningSlidingAvg(T_out init_value = 0) : y_out{init_value} { } // ctor
+  RunningSlidingAvg(const RunningSlidingAvg& other) : // copy ctor
+    y_out{other.y_out}, y_prev{other.y_prev},
+    idx{other.idx}, start_sliding{other.start_sliding} { }
+  RunningSlidingAvg(const RunningSlidingAvg&& other) : // move ctor
+    y_out{other.y_out}, y_prev{other.y_prev},
+    idx{other.idx}, start_sliding{other.start_sliding} { }
+  RunningSlidingAvg& operator=(const RunningSlidingAvg& other) { // copy operator
+    if (&other != this) {
+      y_out = other.y_out;
+      y_prev = other.y_prev;
+      idx = other.idx;
+      start_sliding = other.start_sliding;
+    }
+    return *this;
+  }
+  RunningSlidingAvg& operator=(const RunningSlidingAvg&& other) { // move operator
+    if (&other != this) {
+      y_out = other.y_out;
+      y_prev = other.y_prev;
+      idx = other.idx;
+      start_sliding = other.start_sliding;
+    }
+    return *this;
+  }
+  ~RunningSlidingAvg() { } // dtor
 
   T_out operator() (T_in new_value) {
     return step(new_value);
@@ -89,7 +113,7 @@ public:
   }
 
 private:
-  T_out y_out{0};
+  T_out y_out;
   T_out y_prev{0};
   size_t idx{0};
   volatile bool start_sliding{false};
@@ -146,17 +170,28 @@ public:
 template <vals_to_filter T, expo_coef_type L>
 class ExponentialFilter final {
 public:
-  ExponentialFilter(L alpha_coefficient = 0) {
-    set_alpha(alpha_coefficient);
+  ExponentialFilter(L alpha_coefficient = 0) : // ctor
+  alpha{((alpha_coefficient > 1) || (alpha_coefficient < 0)) ? 0 : alpha_coefficient},
+  alpha_inv{((alpha_coefficient > 1) || (alpha_coefficient < 0)) ? 1 : alpha_coefficient} { }
+  ExponentialFilter(const ExponentialFilter& other) :
+  alpha{other.alpha}, alpha_inv{other.alpha_inv} { } // copy ctor
+  ExponentialFilter(const ExponentialFilter&& other) :
+  alpha{other.alpha}, alpha_inv{other.alpha_inv} { } // move ctor
+  ExponentialFilter& operator=(const ExponentialFilter& other) { // copy operator
+    if (&other != this) {
+      alpha = other.alpha;
+      alpha_inv = other.alpha_inv;
+    }
+    return *this;
   }
-  ExponentialFilter(const ExponentialFilter &other) { // copy
-    alpha = other.alpha;
-    alpha_inv = other.alpha_inv;
+  ExponentialFilter& operator=(const ExponentialFilter&& other) { // move operator
+    if (&other != this) {
+      alpha = other.alpha;
+      alpha_inv = other.alpha_inv;
+    }
+    return *this;
   }
-  ExponentialFilter(const ExponentialFilter &&other) { // move
-    alpha = other.alpha;
-    alpha_inv = other.alpha_inv;
-  }
+  ~ExponentialFilter() {} // dtor
   bool set_alpha(L new_alpha) {
     if ((new_alpha < 0) || (new_alpha > 1)) {
       return false;
@@ -174,27 +209,35 @@ public:
   }
 
 private:
-  L alpha{0.0};
-  L alpha_inv{1.0};
+  L alpha;
+  L alpha_inv;
   T y_prev{0};
 };
 
 template <vals_to_filter T, expo_coef_type L>
 class Exponential2FieldsFilter final {
 public:
-  Exponential2FieldsFilter(L k_0 = 0, L k_1 = 1, L sharpness = 0) {
-    set_alpha(k_0, k_1);
-    set_sharpness(sharpness);
+  Exponential2FieldsFilter(L k_0 = 0, L k_1 = 1, L sharpness = 0.0) :
+  k_0{k_0}, k_1{k_1}, sharpness{fabs(sharpness)} { } // ctor
+  Exponential2FieldsFilter(const Exponential2FieldsFilter& other) :
+  k_0{other.k_0}, k_1{other.k_1}, sharpness{other.sharpness} { } // copy ctor
+  Exponential2FieldsFilter(const Exponential2FieldsFilter&& other) :
+  k_0{other.k_0}, k_1{other.k_1}, sharpness{other.sharpness} { } // move ctor
+  Exponential2FieldsFilter& operator=(const Exponential2FieldsFilter& other) { // copy operator
+    if (&other != this) {
+      sharpness = other.sharpness;
+      k_0 = other.k_0;
+      k_1 = other.k_1;
+    }
+    return *this;
   }
-  Exponential2FieldsFilter(const Exponential2FieldsFilter &other) { // copy
-    sharpness = other.sharpness;
-    k_0 = other.k_0;
-    k_1 = other.k_1;
-  }
-  Exponential2FieldsFilter(const Exponential2FieldsFilter &&other) { // move
-    sharpness = other.sharpness;
-    k_0 = other.k_0;
-    k_1 = other.k_1;
+  Exponential2FieldsFilter& operator=(const Exponential2FieldsFilter&& other) { // move operator
+    if (&other != this) {
+      sharpness = other.sharpness;
+      k_0 = other.k_0;
+      k_1 = other.k_1;
+    }
+    return *this;
   }
   void set_alpha(L new_k_0, L new_k_1) {
     k_0 = new_k_0;
@@ -214,24 +257,56 @@ public:
   }
 
 private:
-  L sharpness{0.0};
-  L k_0{0.0};
-  L k_1{0};
+  L sharpness;
+  L k_0;
+  L k_1;
   T last_value{0};
 };
 
 template<vals_to_filter ValueType, vals_to_filter CoefficientsType>
 class SimpleKalmanFilter final {
 public:
-  SimpleKalmanFilter() { };
   SimpleKalmanFilter(
-    CoefficientsType noise,
-    CoefficientsType change_speed
+    CoefficientsType noise = 0,
+    CoefficientsType change_speed = 0
   ) :
     err_measure{noise},
     q{change_speed},
-    err_estimate{err_measure}
-    { };
+    err_estimate{err_measure} { } // ctor
+  SimpleKalmanFilter(const SimpleKalmanFilter& other) :
+  err_measure{other.err_measure}, q{other.q},
+  err_estimate{other.err_estimate},
+  last_estimate{other.last_estimate},
+  gain{other.gain}, current_estimate{other.current_estimate} { } // copy ctor
+  SimpleKalmanFilter(const SimpleKalmanFilter&& other) :
+  err_measure{other.err_measure}, q{other.q},
+  err_estimate{other.err_estimate},
+  last_estimate{other.last_estimate},
+  gain{other.gain}, current_estimate{other.current_estimate} { } // move ctor
+  SimpleKalmanFilter& operator=(const SimpleKalmanFilter& other) { // copy operator
+    if (&other != this) {
+      err_measure = other.err_measure;
+      q = other.q;
+      err_estimate = other.err_estimate;
+      last_estimate = other.last_estimate;
+      gain = other.gain;
+      current_estimate = other.current_estimate;
+    }
+    return *this;
+  }
+  SimpleKalmanFilter& operator=(const SimpleKalmanFilter&& other) { // move operator
+    if (&other != this) {
+      err_measure = other.err_measure;
+      q = other.q;
+      err_estimate = other.err_estimate;
+      last_estimate = other.last_estimate;
+      gain = other.gain;
+      current_estimate = other.current_estimate;
+    }
+    return *this;
+  }
+  ~SimpleKalmanFilter() {} // dtor
+
   ValueType operator() (ValueType new_value) {
     return step(new_value);
   }
@@ -256,11 +331,8 @@ public:
     return (ValueType) current_estimate;
   }
 private:
-  CoefficientsType err_measure{0};
-  CoefficientsType q{0};
-  CoefficientsType err_estimate{0};
-  CoefficientsType last_estimate{0};
-  CoefficientsType gain{0}, current_estimate{0};
+  CoefficientsType err_measure, q, err_estimate,
+    last_estimate{0}, gain{0}, current_estimate{0};
 };
 
 } // namespace DigitalFilters
