@@ -177,14 +177,14 @@ public:
   alpha{other.alpha}, alpha_inv{other.alpha_inv} { } // copy ctor
   ExponentialFilter(const ExponentialFilter&& other) :
   alpha{other.alpha}, alpha_inv{other.alpha_inv} { } // move ctor
-  ExponentialFilter& operator=(ExponentialFilter& other) { // copy operator
+  ExponentialFilter& operator=(const ExponentialFilter& other) { // copy operator
     if (&other != this) {
       alpha = other.alpha;
       alpha_inv = other.alpha_inv;
     }
     return *this;
   }
-  ExponentialFilter& operator=(ExponentialFilter&& other) { // move operator
+  ExponentialFilter& operator=(const ExponentialFilter&& other) { // move operator
     if (&other != this) {
       alpha = other.alpha;
       alpha_inv = other.alpha_inv;
@@ -217,16 +217,18 @@ private:
 template <vals_to_filter T, expo_coef_type L>
 class Exponential2FieldsFilter final {
 public:
-  Exponential2FieldsFilter(L k_0 = 0, L k_1 = 1, L sharpness = 0) {
-    set_alpha(k_0, k_1);
-    set_sharpness(sharpness);
-  }
-  Exponential2FieldsFilter(const Exponential2FieldsFilter &other) { // copy
+  Exponential2FieldsFilter(L k_0 = 0, L k_1 = 1, L sharpness = 0.0) :
+  k_0{k_0}, k_1{k_1}, sharpness{fabs(sharpness)} { } // ctor
+  Exponential2FieldsFilter(const Exponential2FieldsFilter& other) :
+  k_0{other.k_0}, k_1{other.k_1}, sharpness{other.sharpness} { } // copy ctor
+  Exponential2FieldsFilter(const Exponential2FieldsFilter&& other) :
+  k_0{other.k_0}, k_1{other.k_1}, sharpness{other.sharpness} { } // move ctor
+  Exponential2FieldsFilter& operator=(const Exponential2FieldsFilter& other) { // copy operator
     sharpness = other.sharpness;
     k_0 = other.k_0;
     k_1 = other.k_1;
   }
-  Exponential2FieldsFilter(const Exponential2FieldsFilter &&other) { // move
+  Exponential2FieldsFilter& operator=(const Exponential2FieldsFilter&& other) { // move operator
     sharpness = other.sharpness;
     k_0 = other.k_0;
     k_1 = other.k_1;
@@ -249,9 +251,9 @@ public:
   }
 
 private:
-  L sharpness{0.0};
-  L k_0{0.0};
-  L k_1{0};
+  L sharpness;
+  L k_0;
+  L k_1;
   T last_value{0};
 };
 
