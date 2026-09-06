@@ -51,14 +51,14 @@ private:
 template<vals_to_filter T_in, vals_to_filter T_out, size_t N>
 class RunningSlidingAvg {
 public:
-  RunningSlidingAvg(T_out init_value = 0) : y_out{init_value} { }
-  RunningSlidingAvg(const RunningSlidingAvg& other) :
+  RunningSlidingAvg(T_out init_value = 0) : y_out{init_value} { } // ctor
+  RunningSlidingAvg(const RunningSlidingAvg& other) : // copy ctor
     y_out{other.y_out}, y_prev{other.y_prev},
     idx{other.idx}, start_sliding{other.start_sliding} { }
-  RunningSlidingAvg(const RunningSlidingAvg&& other) :
+  RunningSlidingAvg(const RunningSlidingAvg&& other) : // move ctor
     y_out{other.y_out}, y_prev{other.y_prev},
     idx{other.idx}, start_sliding{other.start_sliding} { }
-  RunningSlidingAvg& operator=(const RunningSlidingAvg& other) {
+  RunningSlidingAvg& operator=(const RunningSlidingAvg& other) { // copy operator
     if (&other != this) {
       y_out = other.y_out;
       y_prev = other.y_prev;
@@ -67,7 +67,7 @@ public:
     }
     return *this;
   }
-  RunningSlidingAvg& operator=(const RunningSlidingAvg&& other) {
+  RunningSlidingAvg& operator=(const RunningSlidingAvg&& other) { // move operator
     if (&other != this) {
       y_out = other.y_out;
       y_prev = other.y_prev;
@@ -76,7 +76,7 @@ public:
     }
     return *this;
   }
-  ~RunningSlidingAvg() { }
+  ~RunningSlidingAvg() { } // dtor
 
   T_out operator() (T_in new_value) {
     return step(new_value);
