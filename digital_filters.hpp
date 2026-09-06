@@ -51,8 +51,32 @@ private:
 template<vals_to_filter T_in, vals_to_filter T_out, size_t N>
 class RunningSlidingAvg {
 public:
-  // RunningSlidingAvg() { };
-  RunningSlidingAvg(float init_value = 0): y_out{init_value} { };
+  RunningSlidingAvg(T_out init_value = 0) : y_out{init_value} { }
+  RunningSlidingAvg(const RunningSlidingAvg& other) :
+    y_out{other.y_out}, y_prev{other.y_prev},
+    idx{other.idx}, start_sliding{other.start_sliding} { }
+  RunningSlidingAvg(const RunningSlidingAvg&& other) :
+    y_out{other.y_out}, y_prev{other.y_prev},
+    idx{other.idx}, start_sliding{other.start_sliding} { }
+  RunningSlidingAvg& operator=(const RunningSlidingAvg& other) {
+    if (&other != this) {
+      y_out = other.y_out;
+      y_prev = other.y_prev;
+      idx = other.idx;
+      start_sliding = other.start_sliding;
+    }
+    return *this;
+  }
+  RunningSlidingAvg& operator=(const RunningSlidingAvg&& other) {
+    if (&other != this) {
+      y_out = other.y_out;
+      y_prev = other.y_prev;
+      idx = other.idx;
+      start_sliding = other.start_sliding;
+    }
+    return *this;
+  }
+  ~RunningSlidingAvg() { }
 
   T_out operator() (T_in new_value) {
     return step(new_value);
@@ -89,7 +113,7 @@ public:
   }
 
 private:
-  T_out y_out{0};
+  T_out y_out;
   T_out y_prev{0};
   size_t idx{0};
   volatile bool start_sliding{false};
