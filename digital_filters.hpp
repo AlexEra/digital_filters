@@ -170,17 +170,28 @@ public:
 template <vals_to_filter T, expo_coef_type L>
 class ExponentialFilter final {
 public:
-  ExponentialFilter(L alpha_coefficient = 0) {
-    set_alpha(alpha_coefficient);
+  ExponentialFilter(L alpha_coefficient = 0) : // ctor
+  alpha{((alpha_coefficient > 1) || (alpha_coefficient < 0)) ? 0 : alpha_coefficient},
+  alpha_inv{((alpha_coefficient > 1) || (alpha_coefficient < 0)) ? 1 : alpha_coefficient} { }
+  ExponentialFilter(const ExponentialFilter& other) :
+  alpha{other.alpha}, alpha_inv{other.alpha_inv} { } // copy ctor
+  ExponentialFilter(const ExponentialFilter&& other) :
+  alpha{other.alpha}, alpha_inv{other.alpha_inv} { } // move ctor
+  ExponentialFilter& operator=(ExponentialFilter& other) { // copy operator
+    if (&other != this) {
+      alpha = other.alpha;
+      alpha_inv = other.alpha_inv;
+    }
+    return *this;
   }
-  ExponentialFilter(const ExponentialFilter &other) { // copy
-    alpha = other.alpha;
-    alpha_inv = other.alpha_inv;
+  ExponentialFilter& operator=(ExponentialFilter&& other) { // move operator
+    if (&other != this) {
+      alpha = other.alpha;
+      alpha_inv = other.alpha_inv;
+    }
+    return *this;
   }
-  ExponentialFilter(const ExponentialFilter &&other) { // move
-    alpha = other.alpha;
-    alpha_inv = other.alpha_inv;
-  }
+  ~ExponentialFilter() {} // dtor
   bool set_alpha(L new_alpha) {
     if ((new_alpha < 0) || (new_alpha > 1)) {
       return false;
@@ -198,8 +209,8 @@ public:
   }
 
 private:
-  L alpha{0.0};
-  L alpha_inv{1.0};
+  L alpha;
+  L alpha_inv;
   T y_prev{0};
 };
 
