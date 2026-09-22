@@ -55,7 +55,7 @@ public:
   RunningSlidingAvg(const RunningSlidingAvg& other) : // copy ctor
     y_out{other.y_out}, y_prev{other.y_prev},
     idx{other.idx}, start_sliding{other.start_sliding} { }
-  RunningSlidingAvg(const RunningSlidingAvg&& other) : // move ctor
+  RunningSlidingAvg(RunningSlidingAvg&& other) : // move ctor
     y_out{other.y_out}, y_prev{other.y_prev},
     idx{other.idx}, start_sliding{other.start_sliding} { }
   RunningSlidingAvg& operator=(const RunningSlidingAvg& other) { // copy operator
@@ -67,7 +67,7 @@ public:
     }
     return *this;
   }
-  RunningSlidingAvg& operator=(const RunningSlidingAvg&& other) { // move operator
+  RunningSlidingAvg& operator=(RunningSlidingAvg&& other) { // move operator
     if (&other != this) {
       y_out = other.y_out;
       y_prev = other.y_prev;
@@ -175,8 +175,8 @@ public:
   alpha_inv{((alpha_coefficient > 1) || (alpha_coefficient < 0)) ? 1 : alpha_coefficient} { }
   ExponentialFilter(const ExponentialFilter& other) :
   alpha{other.alpha}, alpha_inv{other.alpha_inv} { } // copy ctor
-  ExponentialFilter(const ExponentialFilter&& other) :
-  alpha{other.alpha}, alpha_inv{other.alpha_inv} { } // move ctor
+  ExponentialFilter(ExponentialFilter&& other) :
+    alpha{other.alpha}, alpha_inv{other.alpha_inv} { } // move ctor
   ExponentialFilter& operator=(const ExponentialFilter& other) { // copy operator
     if (&other != this) {
       alpha = other.alpha;
@@ -184,7 +184,7 @@ public:
     }
     return *this;
   }
-  ExponentialFilter& operator=(const ExponentialFilter&& other) { // move operator
+  ExponentialFilter& operator=(ExponentialFilter&& other) { // move operator
     if (&other != this) {
       alpha = other.alpha;
       alpha_inv = other.alpha_inv;
@@ -221,8 +221,8 @@ public:
   k_0{k_0}, k_1{k_1}, sharpness{fabs(sharpness)} { } // ctor
   Exponential2FieldsFilter(const Exponential2FieldsFilter& other) :
   k_0{other.k_0}, k_1{other.k_1}, sharpness{other.sharpness} { } // copy ctor
-  Exponential2FieldsFilter(const Exponential2FieldsFilter&& other) :
-  k_0{other.k_0}, k_1{other.k_1}, sharpness{other.sharpness} { } // move ctor
+  Exponential2FieldsFilter(Exponential2FieldsFilter&& other) :
+    k_0{other.k_0}, k_1{other.k_1}, sharpness{other.sharpness} { } // move ctor
   Exponential2FieldsFilter& operator=(const Exponential2FieldsFilter& other) { // copy operator
     if (&other != this) {
       sharpness = other.sharpness;
@@ -231,7 +231,7 @@ public:
     }
     return *this;
   }
-  Exponential2FieldsFilter& operator=(const Exponential2FieldsFilter&& other) { // move operator
+  Exponential2FieldsFilter& operator=(Exponential2FieldsFilter&& other) { // move operator
     if (&other != this) {
       sharpness = other.sharpness;
       k_0 = other.k_0;
@@ -278,11 +278,11 @@ public:
   err_estimate{other.err_estimate},
   last_estimate{other.last_estimate},
   gain{other.gain}, current_estimate{other.current_estimate} { } // copy ctor
-  SimpleKalmanFilter(const SimpleKalmanFilter&& other) :
-  err_measure{other.err_measure}, q{other.q},
-  err_estimate{other.err_estimate},
-  last_estimate{other.last_estimate},
-  gain{other.gain}, current_estimate{other.current_estimate} { } // move ctor
+  SimpleKalmanFilter(SimpleKalmanFilter&& other) :
+    err_measure{other.err_measure}, q{other.q},
+    err_estimate{other.err_estimate},
+    last_estimate{other.last_estimate},
+    gain{other.gain}, current_estimate{other.current_estimate} { } // move ctor
   SimpleKalmanFilter& operator=(const SimpleKalmanFilter& other) { // copy operator
     if (&other != this) {
       err_measure = other.err_measure;
@@ -294,7 +294,7 @@ public:
     }
     return *this;
   }
-  SimpleKalmanFilter& operator=(const SimpleKalmanFilter&& other) { // move operator
+  SimpleKalmanFilter& operator=(SimpleKalmanFilter&& other) { // move operator
     if (&other != this) {
       err_measure = other.err_measure;
       q = other.q;
