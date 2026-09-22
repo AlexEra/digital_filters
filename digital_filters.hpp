@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <algorithm>
 #include <array>
+#include <vector>
 #include <cmath>
 #include <concepts>
 
@@ -147,6 +148,66 @@ protected:
   T out{0};
   uint8_t index{0};
   std::array<T, N> values;
+};
+
+template<vals_to_filter T>
+class MedianFilterVariable {
+public:
+  MedianFilterVariable(const size_t size = 3) { // ctor
+    for (auto i{0}; i < size; i++) {
+      data_.push_back(0);
+    }
+    it_ = data_.begin();
+  }
+
+  MedianFilterVariable(const MedianFilterVariable &other) :
+  last_val_{other.last_val_}, data_{other.data_} { // copy ctor
+    it_ = data_.begin();
+  }
+
+  MedianFilterVariable(MedianFilterVariable &&other) :
+  last_val_{other.last_val_}, it_{other.it_}, data_{other.data_} {  } // move ctor
+
+  MedianFilterVariable& operator=(const MedianFilterVariable &other) { // copy operator
+    if (&other != this) {
+      it_ = other.it_;
+      last_val_ = other.last_val_;
+      data_ = other.data_;
+    }
+    return *this;
+  }
+
+  MedianFilterVariable& operator=(MedianFilterVariable &&other) { // move operator
+    if (&other != this) {
+      it_ = other.it_;
+      last_val_ = other.last_val_;
+      data_ = other.data_;
+
+      other.it_ = nullptr;
+    }
+    return *this;
+  }
+
+  ~MedianFilterVariable() {  } // dtor
+
+  T step(const T new_value) {
+    *it_ = new_value;
+    if (++it_ == data_.end()) {
+      it_ = data_.begin();
+      std::sort(data_.begin(), data_.end());
+      last_val_ = *(data_.begin() + (data_.size() >> 1));
+    }
+    return last_val_;
+  }
+
+  T operator() (const T new_value) {
+    return step(new_value);
+  }
+
+private:
+  T last_val_{0};
+  std::vector<T>::iterator it_;
+  std::vector<T> data_;
 };
 
 template<vals_to_filter T, size_t N>
