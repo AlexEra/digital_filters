@@ -204,6 +204,14 @@ public:
     return step(new_value);
   }
 
+  void set_size(size_t new_size) {
+    data_.resize(new_size);
+  }
+
+  size_t get_size(void) {
+    return data_.size();
+  }
+
 private:
   T last_val_{0};
   std::vector<T>::iterator it_;
